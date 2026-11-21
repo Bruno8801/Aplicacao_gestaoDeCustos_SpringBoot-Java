@@ -1,4 +1,4 @@
-# Gestão de Custos
+# Gestão de Custos 💰
 
 API REST para cadastro e consulta de despesas pessoais, desenvolvida com Java e Spring Boot. O projeto também inclui endpoints para experimentar paginação e cache em consultas de grandes volumes de dados.
 
