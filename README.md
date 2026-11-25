@@ -1,6 +1,6 @@
 # Gestão de Custos 💰
 
-API REST para cadastro e consulta de despesas pessoais, desenvolvida com Java e Spring Boot. O projeto também inclui endpoints para experimentar paginação e cache em consultas de grandes volumes de dados.
+Aplicação web e API REST para cadastro e consulta de despesas pessoais, desenvolvida com Java, Spring Boot e Vaadin. A interface oferece uma experiência responsiva para gerenciar despesas, enquanto os endpoints de desempenho permitem experimentar paginação e cache em consultas de grandes volumes.
 
 ## Funcionalidades
 
@@ -8,6 +8,10 @@ API REST para cadastro e consulta de despesas pessoais, desenvolvida com Java e 
 - Consulta de todas as despesas salvas ou filtragem por e-mail e, opcionalmente, pela data do gasto.
 - Exclusão de uma despesa pelo UUID.
 - Resumo mensal por e-mail, filtrando pela data do gasto entre o primeiro e o último dia do mês e retornando o total calculado.
+- Interface web para consultar, filtrar, cadastrar, editar e excluir despesas.
+- Filtros por e-mail, categoria e intervalo de datas, com total das despesas correspondentes e atalho para o mês atual.
+- Tabela paginada com carregamento sob demanda para evitar carregar todos os registros de uma vez.
+- Formulários responsivos com campos identificados, indicação de campos obrigatórios e confirmação antes da exclusão.
 - Endpoints de desempenho para comparar consulta sem paginação, consulta paginada e consulta paginada com cache local.
 - Banco H2 em arquivo para persistir os dados entre inicializações.
 - Seeder de desempenho preparado no código, mas desativado por padrão para não inserir um grande lote de dados a cada inicialização.
@@ -19,6 +23,7 @@ API REST para cadastro e consulta de despesas pessoais, desenvolvida com Java e 
 - Spring Web MVC
 - Spring Data JPA
 - Spring Cache
+- Vaadin Flow
 - H2 Database
 - Maven
 
@@ -31,6 +36,8 @@ API REST para cadastro e consulta de despesas pessoais, desenvolvida com Java e 
 ```
 
 O banco H2 é configurado em `src/main/resources/application.properties` com o caminho relativo `./data/gestao-despesa`. Execute a aplicação sempre a partir da raiz do projeto para que os dados sejam salvos na mesma pasta `data`.
+
+Depois que a aplicação iniciar, abra `http://localhost:8080` para acessar a interface web.
 
 Para executar os testes:
 
@@ -73,7 +80,13 @@ O resumo mensal recebe o mês no formato `yyyy-MM`, por exemplo:
 GET /gestao/usuario@email.com/resumo-mensal?mes=2026-11
 ```
 
-A resposta contém o mês, as datas inicial e final do período, a lista de despesas e o campo `total`. A API entrega esses dados em JSON; a apresentação do total em uma última linha de tabela, com mesclagem de colunas e bordas, fica a cargo de uma futura interface gráfica.
+A resposta contém o mês, as datas inicial e final do período, a lista de despesas e o campo `total`.
+
+### Interface web
+
+A rota `/` abre a tela Vaadin. A tabela permite navegar pelas despesas com carregamento paginado, aplicar filtros por e-mail, categoria e período, visualizar o total filtrado, e cadastrar, editar ou excluir registros. O botão “Mês atual” preenche o intervalo de datas do mês corrente.
+
+A interface adapta os campos de filtro e formulário a telas menores e usa rótulos, indicação de obrigatoriedade, mensagens de estado e confirmação de exclusão para apoiar a acessibilidade. A interface é uma aplicação web responsiva; para uma futura versão nativa iOS/Android, o caminho recomendado é consumir a API REST existente a partir de um cliente móvel.
 
 ### Desempenho
 
@@ -86,7 +99,7 @@ A resposta contém o mês, as datas inicial e final do período, a lista de desp
 
 O cache simples é local à aplicação, vale apenas para a rota de desempenho anotada com `@Cacheable` e é perdido quando a aplicação reinicia. O cadastro e a exclusão limpam as entradas desse cache para evitar servir resultados antigos após alterações.
 
-O seeder em `performance/GestaoDeDespesaSeeder.java` está desativado por padrão. Ativá-lo insere dados na despesas de teste no banco configurado; use um banco de teste ou faça backup antes de habilitá-lo.
+O seeder em `performance/GestaoDeDespesaSeeder.java` está desativado por padrão. Ativá-lo insere até 150.001 despesas de teste no banco configurado; use um banco de teste ou faça backup antes de habilitá-lo.
 
 ## Organização do código
 
@@ -95,6 +108,7 @@ O seeder em `performance/GestaoDeDespesaSeeder.java` está desativado por padrã
 - `repository`: consultas e persistência com Spring Data JPA.
 - `model`: entidade persistida `Despesa`.
 - `dto`: estruturas de resposta, como o resumo mensal.
+- `view`: interface Vaadin.
 - `performance`: endpoints e seeder voltados a testes de desempenho.
 
-O projeto ainda não inclui interface gráfica nem autenticação de usuários. O H2 Console é uma ferramenta de administração do banco, não uma interface de uso final da aplicação.
+O projeto ainda não inclui autenticação de usuários. O H2 Console continua disponível como ferramenta de administração do banco, mas não é necessário para as operações normais da interface.
